@@ -15,6 +15,9 @@
     <quarkus.platform.version>3.6.0</quarkus.platform.version>
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.1.2</surefire-plugin.version>
+    <checkstyle.version>3.3.1</checkstyle.version>
+    <eclipse.jkube.version>1.15.0</eclipse.jkube.version>
+    <jkube.openshift.imageChangeTriggers>false</jkube.openshift.imageChangeTriggers>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -70,6 +73,34 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>${checkstyle.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>10.12.5</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <configLocation>checkstyle.xml</configLocation>
+          <!-- For future tasks: integrate the tests into the checkstyle configuration. -->
+          <includeTestSourceDirectory>false</includeTestSourceDirectory>
+          <testSourceDirectories>
+            <testSourceDirectory>src/test/java</testSourceDirectory>
+          </testSourceDirectories>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>validate</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+			</plugin>
+      <plugin>
         <groupId>${quarkus.platform.group-id}</groupId>
         <artifactId>quarkus-maven-plugin</artifactId>
         <version>${quarkus.platform.version}</version>
@@ -121,6 +152,41 @@
             <maven.home>${maven.home}</maven.home>
           </systemPropertyVariables>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.jkube</groupId>
+        <artifactId>openshift-maven-plugin</artifactId>
+        <version>${eclipse.jkube.version}</version>
+      <configuration>
+        <resources>
+          <labels>
+            <deployment>
+              <property>
+                <name>app.kubernetes.io/part-of</name>
+                <value>rhacademy</value>
+              </property>
+              <property>
+                <name>app.kubernetes.io/component</name>
+                <value>backend</value>
+              </property>
+              <property>
+                <name>app.openshift.io/runtime</name>
+                <value>quarkus</value>
+              </property>
+            </deployment>
+          </labels>
+        </resources>
+        <enricher>
+          <config>
+            <jkube-project-label>
+              <group>rhacademy</group>
+            </jkube-project-label>
+            <jkube-openshift-route>
+              <tlsTermination>edge</tlsTermination>
+            </jkube-openshift-route>
+          </config>
+        </enricher>
+      </configuration>
       </plugin>
     </plugins>
   </build>
