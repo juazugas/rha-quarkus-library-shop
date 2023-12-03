@@ -18,6 +18,7 @@
     <checkstyle.version>3.3.1</checkstyle.version>
     <eclipse.jkube.version>1.15.0</eclipse.jkube.version>
     <jkube.openshift.imageChangeTriggers>false</jkube.openshift.imageChangeTriggers>
+    <jkube.build.switchToDeployment>true</jkube.build.switchToDeployment>
   </properties>
   <dependencyManagement>
     <dependencies>

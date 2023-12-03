@@ -118,6 +118,35 @@ Launch a rollout
 
 ```mvn oc:rollout```
 
+## Library Shop Application API
+
+Check the application OpenAPI specification
+
+http://localhost:8080/q/swagger-ui
+
+Create a book
+
+```shell script
+curl -i -X POST http://localhost:8080/library -H "Content-type: application/json" -d '{"title":"My book","isbn":"1234","authors":[{"name":"myself"}]}'
+```
+
+Get a book by Id
+
+```shell script
+curl -s http://localhost:8080/library/1 | jq
+```
+
+Update the book price
+
+```shell script
+curl -i -X PUT http://localhost:8080/library/1/price\?price\=15.00
+```
+
+Paged list all the books
+
+```shell script
+curl -s http://localhost:8080/library/ | jq
+```
 
 ## More Quarkus: Related Guides
 

@@ -1,0 +1,5 @@
+metadata:
+  name: ${project.artifactId}
+data:
+  GC_CONTAINER_OPTIONS: '-XX:+UseShenandoahGC'
+  QUARKUS_LOG_LEVEL: INFO

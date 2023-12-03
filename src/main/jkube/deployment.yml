@@ -1,0 +1,32 @@
+spec:
+  template:
+    spec:
+      containers:
+      - env:
+        - name: APP_HOST
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        envFrom:
+        - configMapRef:
+            name: ${project.artifactId}
+        - secretRef:
+            name: ${project.artifactId}
+        imagePullPolicy: Always
+        # livenessProbe:
+        #   httpGet:
+        #     host: ""
+        #     path: /q/health/live
+        #     port: 8080
+        #     scheme: HTTP
+        #   initialDelaySeconds: 3
+        #   timeoutSeconds: 3
+        # readinessProbe:
+        #   httpGet:
+        #     host: ""
+        #     path: /q/health/ready
+        #     port: 8080
+        #     scheme: HTTP
+        #   initialDelaySeconds: 3
+        #   timeoutSeconds: 3
