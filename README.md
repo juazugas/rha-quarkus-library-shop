@@ -1,4 +1,4 @@
-# Library
+# Library Shop
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
@@ -34,7 +34,7 @@ The application, packaged as an _über-jar_, is now runnable using `java -jar ta
 Database creation for local testing ...
 
 ```shell script
-podman run -d --name pg-library -e POSTGRESQL_USER=quarkus -e POSTGRESQL_PASSWORD=quarkus -e POSTGRESQL_DATABASE=quarkus -p 5432:5432 docker.io/library/postgres:14
+podman run -d --name pg-library-shop -e POSTGRESQL_USER=quarkus -e POSTGRESQL_PASSWORD=quarkus -e POSTGRESQL_DATABASE=quarkus -p 5432:5432 docker.io/library/postgres:14
 ```
 
 ## Creating a native executable
@@ -49,7 +49,7 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 ./mvnw package -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=podman
 ```
 
-You can then execute your native executable with: `./target/library-1.0.0-SNAPSHOT-runner`
+You can then execute your native executable with: `./target/library-shop-1.0.0-runner`
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
 
@@ -66,7 +66,7 @@ FROM registry.access.redhat.com/ubi9/openjdk-17-runtime:1.17-1
 ENV LANGUAGE='en_US:en'
 
 
-# We make four distinct layers so if there are application changes the library layers can be re-used
+# We make four distinct layers so if there are application changes the library-shop layers can be re-used
 COPY --chown=185 target/quarkus-app/lib/ /deployments/lib/
 COPY --chown=185 target/quarkus-app/*.jar /deployments/
 COPY --chown=185 target/quarkus-app/app/ /deployments/app/
@@ -83,7 +83,7 @@ ENTRYPOINT [ "/opt/jboss/container/java/run/run-java.sh" ]
 Execute the command :
 
 ```sh
-podman build -f ./src/main/docker/Containerfile.jvm -t rha/library:latest .
+podman build -f ./src/main/docker/Containerfile.jvm -t rha/library-shop:latest .
 ```
 
 ### Create a Container image for the native executable
@@ -101,6 +101,22 @@ USER 1001
 
 CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
 ```
+
+## Deploying application to OpenShift Platform
+
+### Development using JKube openshift-maven-plugin
+
+Launch an application build
+
+```mvn package oc:build -DskipTests -Djkube.docker.verbose```
+
+Launch the deploy
+
+```mvn package oc:resource oc:apply -DskipTests```
+
+Launch a rollout
+
+```mvn oc:rollout```
 
 
 ## More Quarkus: Related Guides
