@@ -6,7 +6,11 @@
   <artifactId>library-shop</artifactId>
   <version>1.0.0</version>
   <properties>
+    <checkstyle.version>3.3.1</checkstyle.version>
     <compiler-plugin.version>3.11.0</compiler-plugin.version>
+    <eclipse.jkube.version>1.15.0</eclipse.jkube.version>
+    <jkube.build.switchToDeployment>true</jkube.build.switchToDeployment>
+    <jkube.openshift.imageChangeTriggers>false</jkube.openshift.imageChangeTriggers>
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -15,10 +19,6 @@
     <quarkus.platform.version>3.6.0</quarkus.platform.version>
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.1.2</surefire-plugin.version>
-    <checkstyle.version>3.3.1</checkstyle.version>
-    <eclipse.jkube.version>1.15.0</eclipse.jkube.version>
-    <jkube.openshift.imageChangeTriggers>false</jkube.openshift.imageChangeTriggers>
-    <jkube.build.switchToDeployment>true</jkube.build.switchToDeployment>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -74,9 +74,16 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>${checkstyle.version}</version>
+        <executions>
+          <execution>
+            <phase>validate</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
         <dependencies>
           <dependency>
             <groupId>com.puppycrawl.tools</groupId>
@@ -86,21 +93,12 @@
         </dependencies>
         <configuration>
           <configLocation>checkstyle.xml</configLocation>
-          <!-- For future tasks: integrate the tests into the checkstyle configuration. -->
           <includeTestSourceDirectory>false</includeTestSourceDirectory>
           <testSourceDirectories>
             <testSourceDirectory>src/test/java</testSourceDirectory>
           </testSourceDirectories>
         </configuration>
-        <executions>
-          <execution>
-            <phase>validate</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-			</plugin>
+      </plugin>
       <plugin>
         <groupId>${quarkus.platform.group-id}</groupId>
         <artifactId>quarkus-maven-plugin</artifactId>
@@ -158,36 +156,36 @@
         <groupId>org.eclipse.jkube</groupId>
         <artifactId>openshift-maven-plugin</artifactId>
         <version>${eclipse.jkube.version}</version>
-      <configuration>
-        <resources>
-          <labels>
-            <deployment>
-              <property>
-                <name>app.kubernetes.io/part-of</name>
-                <value>rhacademy</value>
-              </property>
-              <property>
-                <name>app.kubernetes.io/component</name>
-                <value>backend</value>
-              </property>
-              <property>
-                <name>app.openshift.io/runtime</name>
-                <value>quarkus</value>
-              </property>
-            </deployment>
-          </labels>
-        </resources>
-        <enricher>
-          <config>
-            <jkube-project-label>
-              <group>rhacademy</group>
-            </jkube-project-label>
-            <jkube-openshift-route>
-              <tlsTermination>edge</tlsTermination>
-            </jkube-openshift-route>
-          </config>
-        </enricher>
-      </configuration>
+        <configuration>
+          <resources>
+            <labels>
+              <deployment>
+                <property>
+                  <name>app.kubernetes.io/part-of</name>
+                  <value>rhacademy</value>
+                </property>
+                <property>
+                  <name>app.kubernetes.io/component</name>
+                  <value>backend</value>
+                </property>
+                <property>
+                  <name>app.openshift.io/runtime</name>
+                  <value>quarkus</value>
+                </property>
+              </deployment>
+            </labels>
+          </resources>
+          <enricher>
+            <config>
+              <jkube-project-label>
+                <group>rhacademy</group>
+              </jkube-project-label>
+              <jkube-openshift-route>
+                <tlsTermination>edge</tlsTermination>
+              </jkube-openshift-route>
+            </config>
+          </enricher>
+        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -203,6 +201,53 @@
         <skipITs>false</skipITs>
         <quarkus.package.type>native</quarkus.package.type>
       </properties>
+    </profile>
+    <profile>
+      <!-- https://quarkus.io/guides/container-image#jib -->
+      <id>jib</id>
+      <activation>
+        <property>
+          <name>buildContainer</name>
+          <value>jib</value>
+        </property>
+      </activation>
+      <properties>
+        <skipTests>true</skipTests>
+        <quarkus.container-image.build>true</quarkus.container-image.build>
+        <quarkus.jib.base-jvm-image>registry.access.redhat.com/ubi9/openjdk-17-runtime:1.17-1</quarkus.jib.base-jvm-image>
+        <quarkus.container-image.group>rha</quarkus.container-image.group>
+        <quarkus.container-image.name>${project.artifactId}-jib</quarkus.container-image.name>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>io.quarkus</groupId>
+          <artifactId>quarkus-container-image-jib</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <!-- https://quarkus.io/guides/container-image#jib -->
+      <id>docker</id>
+      <activation>
+        <property>
+          <name>buildContainer</name>
+          <value>docker</value>
+        </property>
+      </activation>
+      <properties>
+        <skipTests>true</skipTests>
+        <quarkus.container-image.build>true</quarkus.container-image.build>
+        <quarkus.container-image.group>rha</quarkus.container-image.group>
+        <quarkus.docker.dockerfile-jvm-path>src/main/docker/Containerfile.jvm</quarkus.docker.dockerfile-jvm-path>
+        <quarkus.docker.dockerfile-native-path>src/main/docker/Containerfile.native</quarkus.docker.dockerfile-native-path>
+        <quarkus.container-image.name>${project.artifactId}-docker</quarkus.container-image.name>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>io.quarkus</groupId>
+          <artifactId>quarkus-container-image-docker</artifactId>
+        </dependency>
+      </dependencies>
     </profile>
   </profiles>
 </project>

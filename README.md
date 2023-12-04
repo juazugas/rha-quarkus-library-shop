@@ -58,6 +58,8 @@ If you want to learn more about building native executables, please consult http
 
 ### Create a Container image for the Java Virtual Machine
 
+#### Manually
+
 To create the container image review the file [Containerfile.jvm](./src/main/docker/Containerfile.jvm)
 
 ```Containerfile
@@ -83,8 +85,35 @@ ENTRYPOINT [ "/opt/jboss/container/java/run/run-java.sh" ]
 Execute the command :
 
 ```sh
-podman build -f ./src/main/docker/Containerfile.jvm -t rha/library-shop:latest .
+podman build -f ./src/main/docker/Containerfile.jvm -t rha/library-shop:1.0.0 .
 ```
+
+#### Via Quarkus Building Container Extension
+
+Using jib (quarkus-container-image-jib) extension
+
+```shell script
+./mvnw package -Pjib
+```
+
+Check the iamge
+
+```shell script
+podman run --rm -it -e DATABASE_HOST=alumno -p 8080:8080 rha/library-shop-jib:1.0.0
+```
+
+Using docker (quarkus-container-image-docker) extension
+
+```shell script
+./mvnw package -Pdocker
+```
+
+Check the iamge
+
+```shell script
+podman run --rm -it -e DATABASE_HOST=alumno -p 8080:8080 rha/library-shop-docker:1.0.0
+```
+
 
 ### Create a Container image for the native executable
 
@@ -127,7 +156,7 @@ http://localhost:8080/q/swagger-ui
 Create a book
 
 ```shell script
-curl -i -X POST http://localhost:8080/library -H "Content-type: application/json" -d '{"title":"My book","isbn":"1234","authors":[{"name":"myself"}]}'
+curl -i -X POST http://localhost:8080/library -H "Content-type: application/json" -d '{"title":"The Difference Engine","year":1990,"isbn":"0-575-04762-3","price":12.0,"authors":[{"name":"William Gibson"},{"name":"Bruce Sterling"}]}'
 ```
 
 Get a book by Id
