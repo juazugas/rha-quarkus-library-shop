@@ -31,10 +31,13 @@ If you want to build an _über-jar_, execute the following command:
 
 The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
 
-Database creation for local testing ...
+Manually create the database for local testing (with initialization file) ...
 
 ```shell script
-podman run -d --name pg-library-shop -e POSTGRESQL_USER=quarkus -e POSTGRESQL_PASSWORD=quarkus -e POSTGRESQL_DATABASE=quarkus -p 5432:5432 docker.io/library/postgres:14
+podman run -d --name pg-library-shop -p 5432:5432 \
+    -e POSTGRES_USER=quarkus -e POSTGRES_PASSWORD=quarkus -e POSTGRES_DATABASE=quarkus \
+    -v $PWD/src/main/database:/docker-entrypoint-initdb.d:ro,z \
+    docker.io/library/postgres:14
 ```
 
 ## Creating a native executable
