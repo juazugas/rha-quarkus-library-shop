@@ -37,7 +37,7 @@ Manually create the database for local testing (with initialization file) ...
 podman run -d --name pg-library-shop -p 5432:5432 \
     -e POSTGRES_USER=quarkus -e POSTGRES_PASSWORD=quarkus -e POSTGRES_DATABASE=quarkus \
     -v $PWD/src/main/database:/docker-entrypoint-initdb.d:ro,z \
-    docker.io/library/postgres:14
+    docker.io/library/postgres:17
 ```
 
 ## Creating a native executable
@@ -66,7 +66,7 @@ If you want to learn more about building native executables, please consult http
 To create the container image review the file [Containerfile.jvm](./src/main/docker/Containerfile.jvm)
 
 ```Containerfile
-FROM registry.access.redhat.com/ubi9/openjdk-17-runtime:1.17-1
+FROM registry.access.redhat.com/ubi9/openjdk-21-runtime:1.21-1
 
 ENV LANGUAGE='en_US:en'
 
@@ -121,7 +121,7 @@ podman run --rm -it -e DATABASE_HOST=alumno -p 8080:8080 rha/library-shop-docker
 ### Create a Container image for the native executable
 
 ```Containerfile
-FROM registry.access.redhat.com/ubi9/ubi-micro:9.3-6
+FROM registry.access.redhat.com/ubi9/ubi-micro:9.5-1733126338
 WORKDIR /work/
 RUN chown 1001 /work \
     && chmod "g+rwX" /work \
@@ -183,13 +183,28 @@ curl -s http://localhost:8080/library/ | jq
 ## More Quarkus: Related Guides
 
 - REST resources for Hibernate ORM with Panache ([guide](https://quarkus.io/guides/rest-data-panache)): Generate Jakarta REST resources for your Hibernate Panache entities and repositories
+- SmallRye OpenAPI ([guide](https://quarkus.io/guides/openapi-swaggerui)): Document your REST APIs with OpenAPI - comes with Swagger UI
+- REST Jackson ([guide](https://quarkus.io/guides/rest#json-serialisation)): Jackson serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it
+- SmallRye Health ([guide](https://quarkus.io/guides/smallrye-health)): Monitor service health
 - JDBC Driver - PostgreSQL ([guide](https://quarkus.io/guides/datasource)): Connect to the PostgreSQL database via JDBC
-- Building a Native Executable ([guide](https://quarkus.io/guides/building-native-image)): Creating a Linux executable without GraalVM installed
 
 ## Provided Code
 
-### RESTEasy Reactive
+### REST Data with Panache
 
-Easily start your Reactive RESTful Web Services
+Generating Jakarta REST resources with Panache
+
+[Related guide section...](https://quarkus.io/guides/rest-data-panache)
+
+
+### REST
+
+Easily start your REST Web Services
 
 [Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+
+### SmallRye Health
+
+Monitor your application's health using SmallRye Health
+
+[Related guide section...](https://quarkus.io/guides/smallrye-health)
