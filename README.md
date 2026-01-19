@@ -123,7 +123,7 @@ Or, using docker (quarkus-container-image-docker) extension
 ./mvnw package -Pdocker
 ```
 
-Check the image
+Check the image :
 
 ```shell script
 podman run --rm -it -e DATABASE_HOST=alumno -p 8080:8080 rha/library-shop-docker:1.0.0
